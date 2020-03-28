@@ -1,0 +1,89 @@
+'use strict';
+
+const Hapi = require('@hapi/hapi');
+const Boom = require('@hapi/boom');
+const Joi = require('@hapi/joi');
+const MongoClient = require('mongodb').MongoClient;
+
+const url = "mongodb://localhost:27017";
+
+let db;
+
+MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+    db = client.db('my');
+});
+
+
+const schema = Joi.object({
+    name: Joi.string().min(3).max(30).required(),
+    country: Joi.string().min(3).max(30).required(),
+    age: Joi.number().integer().required(),
+});
+
+const getFilteredParams = (params) => {
+    const filteredParams = {}
+    Object.keys(params).forEach(el => {
+        if (params[el] !== '') {
+            filteredParams[el] = params[el];
+        }
+    });
+
+    return filteredParams;
+}
+
+const init = async () => {
+
+    const server = Hapi.server({
+        port: 3000,
+        host: '127.0.0.1',
+        routes: {
+            cors: {
+                origin: ['http://localhost:8080']
+            },
+        },
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/load',
+        handler: (request, h) => {
+            return new Promise((resolve, reject) => {
+                const params = request.query;
+                const filteredParams = getFilteredParams(params);
+                db.collection('users').find(filteredParams).toArray((err, result) => {
+                    if (err || result.length === 0) {
+                        const error = Boom.notFound('not found');
+                        reject(error)
+                    }
+                    resolve(
+                        h.response(result));
+                });
+            });
+        }
+    });
+
+    server.route({
+        method: 'POST',
+        path: '/',
+        handler: (request, h) => {
+            const obj = request.payload;
+            const { error } = schema.validate(obj);
+            if (error) {
+                const error1 = Boom.badRequest(error);
+                return error1;
+            } else {
+                db.collection('users').insertOne(obj);
+                return JSON.stringify({ message: 'Success' });
+            }
+        }
+    });
+
+    await server.start();
+};
+
+process.on('unhandledRejection', (err) => {
+    console.log(err);
+    process.exit(1);
+});
+
+init();
