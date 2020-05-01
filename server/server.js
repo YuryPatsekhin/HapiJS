@@ -3,6 +3,7 @@
 const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const Joi = require('@hapi/joi');
+const ObjectId = require('mongodb').ObjectID;
 const MongoClient = require('mongodb').MongoClient;
 
 const url = "mongodb://localhost:27017";
@@ -18,6 +19,7 @@ const schema = Joi.object({
     name: Joi.string().min(3).max(30).required(),
     country: Joi.string().min(3).max(30).required(),
     age: Joi.number().integer().required(),
+    _id: Joi.string(),
 });
 
 const getFilteredParams = (params) => {
@@ -25,7 +27,7 @@ const getFilteredParams = (params) => {
     Object.keys(params).forEach(el => {
         if (params[el] !== '') {
             filteredParams[el] = params[el];
-        }
+        };
     });
 
     return filteredParams;
@@ -54,12 +56,12 @@ const init = async () => {
                     if (err || result.length === 0) {
                         const error = Boom.notFound('not found');
                         reject(error)
-                    }
+                    };
                     resolve(
                         h.response(result));
                 });
             });
-        }
+        },
     });
 
     server.route({
@@ -74,8 +76,31 @@ const init = async () => {
             } else {
                 db.collection('users').insertOne(obj);
                 return JSON.stringify({ message: 'Success' });
-            }
-        }
+            };
+        },
+    });
+
+    server.route({
+        method: 'PUT',
+        path: '/',
+        handler: (request, h) => {
+            const obj = request.payload;
+            const { error } = schema.validate(obj);
+            if (error) {
+                const error1 = Boom.badRequest(error);
+                return error1;
+            } else {
+                const _id = obj._id;
+                const dataForUpdate = {};
+                Object.keys(obj).forEach(key => {
+                    if (key !== '_id') {
+                        dataForUpdate[key] = obj[key];
+                    };
+                });
+                db.collection('users').updateOne({ _id: ObjectId(_id)}, { $set: dataForUpdate });
+                return JSON.stringify({ message: 'Success' });
+            };
+        },
     });
 
     await server.start();

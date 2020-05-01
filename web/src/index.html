@@ -8,24 +8,43 @@
 </head>
 
 <body>
-  Name: <input id="name" type="name">
-  Country: <input id="country" type="country">
-  Age: <input id="age" type="age">
-  <br />
-  <button id="sumbit">Submit</button>
-  <br />
-  <span id='message'></span>
-  ----------------------------------------------------------------------------------------------------
-  <br />
-  set filter and load data <button id="load">load</button>
-  <br />
-  <br />
-  Name: <input id="filterName" type="name">
-  Country: <input id="filterCountry" type="country">
-  Age: <input id="filterAge" type="age">
-  <br />
-  <ul id='viewList'></ul>
-  <span id='loadError'></span>
+  <div>
+    <label for="name">Name: </label>
+    <input class="name" id="name" type="name">
+    <label for="country">Country: </label>
+    <input class="country" id="country" type="country">
+    <label for="age">Age: </label>
+    <input class="age" id="age" type="age">
+  </div>
+  <button class="sumbit">Submit</button>
+
+  <div class='message'></div>
+
+  <div class="setFilterMessage">
+    <span>set filter and load data </span>
+    <button class="load">load</button>
+  </div>
+
+  <div>
+    <label for="filterName">Name: </label>
+    <input class="filterName" id="filterName" type="name">
+    <label for="filterCountry">Country: </label>
+    <input class="filterCountry" id="filterCountry" type="country">
+    <label for="filterAge">Age: </label>
+    <input class="filterAge" id="filterAge" type="age">
+  </div>
+  <ul class='viewList'></ul>
+  <span class='loadError'></span>
+
+  <div class="editSection">
+    <label for="editingName">Name: </label>
+    <input class="editingName" id="editingName">
+    <label for="editingCountry">Country: </label>
+    <input class="editingCountry" id="editingCountry">
+    <label for="editingAge">Age: </label>
+    <input class="editingAge" id="editingAge">
+    <div class='message'></div>
+  </div>
 </body>
 
 </html>
