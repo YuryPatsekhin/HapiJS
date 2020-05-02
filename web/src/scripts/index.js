@@ -1,6 +1,8 @@
 import '../styles/index.scss';
 import { api } from './api';
 
+const SUCCESS_STATUS_CODE = 200;
+
 let сurrentDisplayFilter = {
     name: '',
     country: '',
@@ -25,6 +27,16 @@ const editButtonHandler = (el) => {
     editSection.appendChild(closeButton);
 };
 
+const deleteButtonHandler = (el) => {
+    api.deleteElement(JSON.stringify(el._id)).then(data => {
+        if (data.status !== SUCCESS_STATUS_CODE) {
+            alert(data.message);
+        } else {
+            showElementsByFilter();
+        }
+    });
+}
+
 const saveButtonHandler = (e, _id) => {
     const editSection = e.target.parentElement;
     const name = editSection.querySelector('.editingName').value ? editSection.querySelector('.editingName').value.trim() : "";
@@ -36,17 +48,20 @@ const saveButtonHandler = (e, _id) => {
         age,
         _id,
     };
-    api.editElement(JSON.stringify(obj)).then(data => {
-        if (data.message !== "Success") {
-            editSection.querySelector('.message').innerHTML = `${data.message}`;
+    api.editElement(JSON.stringify(obj)).then(answer => {
+        if (answer.status !== SUCCESS_STATUS_CODE) {
+            answer.json().then(result => {
+                editSection.querySelector('.message').innerHTML = `${result.message}`;
+
+            })
         } else {
             document.querySelector('.editSection').style.display = 'none';
             document.querySelector('.close').remove();
             document.querySelector('.save').remove();
             editSection.querySelector('.message').innerHTML = ``;
+            showElementsByFilter();
         };
     });
-    showElementsByFilter();
 };
 
 const closeButtonHandler = () => {
@@ -68,12 +83,36 @@ const sumbitButtonHandler = () => {
         name,
         country,
         age,
-    }
+    };
     api.submitForm(JSON.stringify(obj)).then(data => {
         if (data.message) {
             document.querySelector('.message').innerHTML = `${data.message}`;
         };
+        showElementsByFilter();
     });
+};
+
+const addDeleteButton = (li, el) => {
+    const button = document.createElement('button');
+    button.innerHTML = 'delete';
+    button.addEventListener('click', () => deleteButtonHandler(el));
+    li.appendChild(button);
+};
+
+const addEditButton = (li, el) => {
+    const button = document.createElement('button');
+    button.innerHTML = 'edit';
+    button.addEventListener('click', () => editButtonHandler(el));
+    li.appendChild(button);
+};
+
+const addElementToList = (list, el) => {
+    const li = document.createElement('li');
+    const text = `name: ${el.name} country: ${el.country}  age: ${el.age}`;
+    li.appendChild(document.createTextNode(text));
+    addEditButton(li, el)
+    addDeleteButton(li, el);
+    list.appendChild(li);
 };
 
 const showElementsByFilter = () => {
@@ -85,18 +124,11 @@ const showElementsByFilter = () => {
             document.querySelector('.loadError').innerHTML = `${data.message}`;
         } else {
             data.forEach(el => {
-                const li = document.createElement('li');
-                const text = `name: ${el.name} country: ${el.country}  age: ${el.age}`;
-                const button = document.createElement('button');
-                button.addEventListener('click', () => editButtonHandler(el));
-                button.innerHTML = "edit";
-                li.appendChild(document.createTextNode(text));
-                li.appendChild(button);
-                list.appendChild(li);
+                addElementToList(list, el);
             });
         };
     });
-}
+};
 
 const loadButtonHandler = () => {
     document.querySelector('.loadError').innerHTML = '';

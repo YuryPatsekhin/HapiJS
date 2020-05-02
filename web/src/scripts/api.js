@@ -10,7 +10,12 @@ const api = {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: obj,
-  }).then(data => data.json()),
+  }),
+  deleteElement: (obj) => fetch('http://127.0.0.1:3000', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: obj,
+  }),
 };
 
 export { api };

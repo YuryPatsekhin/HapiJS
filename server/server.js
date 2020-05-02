@@ -97,8 +97,22 @@ const init = async () => {
                         dataForUpdate[key] = obj[key];
                     };
                 });
-                db.collection('users').updateOne({ _id: ObjectId(_id)}, { $set: dataForUpdate });
-                return JSON.stringify({ message: 'Success' });
+                db.collection('users').updateOne({ _id: ObjectId(_id) }, { $set: dataForUpdate });
+                return h.response().code(200);
+            };
+        },
+    });
+
+    server.route({
+        method: 'DELETE',
+        path: '/',
+        handler: (request, h) => {
+            const id = request.payload;
+            try {
+                db.collection('users').deleteOne({ _id: ObjectId(id) });
+                return h.response().code(200);
+            } catch (e) {
+                return Boom.badRequest('Failed to delete item.');
             };
         },
     });
