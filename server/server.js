@@ -71,11 +71,15 @@ const init = async () => {
             const obj = request.payload;
             const { error } = schema.validate(obj);
             if (error) {
-                const error1 = Boom.badRequest(error);
-                return error1;
+                const validationError = Boom.badRequest(error);
+                return validationError;
             } else {
-                db.collection('users').insertOne(obj);
-                return JSON.stringify({ message: 'Success' });
+                try {
+                    db.collection('users').insertOne(obj);
+                    return h.response(JSON.stringify({ message: 'Success' })).code(201);
+                } catch (e) {
+                    return Boom.badRequest();
+                }
             };
         },
     });
@@ -87,8 +91,8 @@ const init = async () => {
             const obj = request.payload;
             const { error } = schema.validate(obj);
             if (error) {
-                const error1 = Boom.badRequest(error);
-                return error1;
+                const validationError = Boom.badRequest(error);
+                return validationError;
             } else {
                 const _id = obj._id;
                 const dataForUpdate = {};

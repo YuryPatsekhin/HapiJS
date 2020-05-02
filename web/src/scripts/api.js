@@ -5,7 +5,7 @@ const api = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: obj,
-  }).then(data => data.json()),
+  }),
   editElement: (obj) => fetch('http://127.0.0.1:3000', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

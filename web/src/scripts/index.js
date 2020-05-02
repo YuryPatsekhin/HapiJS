@@ -2,6 +2,7 @@ import '../styles/index.scss';
 import { api } from './api';
 
 const SUCCESS_STATUS_CODE = 200;
+const CREATED_STATUS_CODE = 201;
 
 let сurrentDisplayFilter = {
     name: '',
@@ -84,11 +85,14 @@ const sumbitButtonHandler = () => {
         country,
         age,
     };
-    api.submitForm(JSON.stringify(obj)).then(data => {
-        if (data.message) {
-            document.querySelector('.message').innerHTML = `${data.message}`;
+    api.submitForm(JSON.stringify(obj)).then(answer => {
+        if (answer.status !== CREATED_STATUS_CODE) {
+            answer.json(data => {
+                document.querySelector('.message').innerHTML = `${data.message}`;
+            });
+        } else {
+            showElementsByFilter();
         };
-        showElementsByFilter();
     });
 };
 
