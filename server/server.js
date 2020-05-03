@@ -24,6 +24,7 @@ const schema = Joi.object({
 
 const getFilteredParams = (params) => {
     const filteredParams = {}
+
     Object.keys(params).forEach(el => {
         if (params[el] !== '') {
             filteredParams[el] = params[el];
@@ -52,6 +53,7 @@ const init = async () => {
             return new Promise((resolve, reject) => {
                 const params = request.query;
                 const filteredParams = getFilteredParams(params);
+
                 db.collection('users').find(filteredParams).toArray((err, result) => {
                     if (err || result.length === 0) {
                         const error = Boom.notFound('not found');
@@ -70,6 +72,7 @@ const init = async () => {
         handler: (request, h) => {
             const obj = request.payload;
             const { error } = schema.validate(obj);
+
             if (error) {
                 const validationError = Boom.badRequest(error);
                 return validationError;
@@ -90,6 +93,7 @@ const init = async () => {
         handler: (request, h) => {
             const obj = request.payload;
             const { error } = schema.validate(obj);
+
             if (error) {
                 const validationError = Boom.badRequest(error);
                 return validationError;
@@ -112,6 +116,7 @@ const init = async () => {
         path: '/',
         handler: (request, h) => {
             const id = request.payload;
+
             try {
                 db.collection('users').deleteOne({ _id: ObjectId(id) });
                 return h.response().code(200);

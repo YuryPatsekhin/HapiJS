@@ -10,22 +10,58 @@ let сurrentDisplayFilter = {
     age: '',
 };
 
-const editButtonHandler = (el) => {
+const showEditSection = (el) => {
     const editSection = document.querySelector('.editSection');
+
     editSection.style.display = 'block';
     document.querySelector('.editingName').value = el.name;
     document.querySelector('.editingCountry').value = el.country;
     document.querySelector('.editingAge').value = el.age;
+
+    addSaveButtonToEditSection(el, editSection);
+    addCloseButtonToEditSection(editSection);
+    closeEditSectionIfClickOutside();
+};
+
+const addSaveButtonToEditSection = (el, editSection) => {
     const saveButton = document.createElement('button');
     saveButton.innerHTML = "save";
     saveButton.classList.add('save');
     saveButton.addEventListener('click', (e) => saveButtonHandler(e, el._id));
     editSection.appendChild(saveButton);
+};
+
+const addCloseButtonToEditSection = (editSection) => {
     const closeButton = document.createElement('button');
     closeButton.innerHTML = "close";
     closeButton.classList.add('close');
-    closeButton.addEventListener('click', closeButtonHandler);
+    closeButton.addEventListener('click', closeEditSection);
     editSection.appendChild(closeButton);
+};
+
+const closeEditSection = () => {
+    const editSection = document.querySelector('.editSection');
+
+    editSection.style.display = 'none';
+    document.querySelector('.close').remove();
+    document.querySelector('.save').remove();
+    editSection.querySelector('.message').innerHTML = ``;
+
+    document.removeEventListener('mouseup', closeEditSection);
+};
+
+const closeEditSectionIfClickOutside = () => {
+    const editSection = document.querySelector('.editSection');
+
+    editSection.addEventListener('mouseup', (e) => {
+        e.stopPropagation();
+    });
+    document.addEventListener('mouseup', closeEditSection)
+};
+
+
+const editButtonHandler = (el) => {
+    showEditSection(el);
 };
 
 const deleteButtonHandler = (el) => {
@@ -36,7 +72,7 @@ const deleteButtonHandler = (el) => {
             showElementsByFilter();
         }
     });
-}
+};
 
 const saveButtonHandler = (e, _id) => {
     const editSection = e.target.parentElement;
@@ -49,6 +85,7 @@ const saveButtonHandler = (e, _id) => {
         age,
         _id,
     };
+
     api.editElement(JSON.stringify(obj)).then(answer => {
         if (answer.status !== SUCCESS_STATUS_CODE) {
             answer.json().then(result => {
@@ -57,37 +94,29 @@ const saveButtonHandler = (e, _id) => {
             })
         } else {
             document.querySelector('.editSection').style.display = 'none';
-            document.querySelector('.close').remove();
-            document.querySelector('.save').remove();
-            editSection.querySelector('.message').innerHTML = ``;
+            closeEditSection();
             showElementsByFilter();
         };
     });
-};
-
-const closeButtonHandler = () => {
-    const editSection = document.querySelector('.editSection');
-    editSection.style.display = 'none';
-    document.querySelector('.close').remove();
-    document.querySelector('.save').remove();
-    editSection.querySelector('.message').innerHTML = ``;
 };
 
 const sumbitButtonHandler = () => {
     const name = document.querySelector('.name').value ? document.querySelector('.name').value.trim() : "";
     const country = document.querySelector('.country').value ? document.querySelector('.country').value.trim() : "";
     const age = document.querySelector('.age').value ? document.querySelector('.age').value.trim() : "";
-    document.querySelector('.name').value = '';
-    document.querySelector('.country').value = '';
-    document.querySelector('.age').value = '';
     const obj = {
         name,
         country,
         age,
     };
+
+    document.querySelector('.name').value = '';
+    document.querySelector('.country').value = '';
+    document.querySelector('.age').value = '';
+
     api.submitForm(JSON.stringify(obj)).then(answer => {
         if (answer.status !== CREATED_STATUS_CODE) {
-            answer.json(data => {
+            answer.json().then(data => {
                 document.querySelector('.message').innerHTML = `${data.message}`;
             });
         } else {
@@ -98,6 +127,7 @@ const sumbitButtonHandler = () => {
 
 const addDeleteButton = (li, el) => {
     const button = document.createElement('button');
+
     button.innerHTML = 'delete';
     button.addEventListener('click', () => deleteButtonHandler(el));
     li.appendChild(button);
@@ -105,6 +135,7 @@ const addDeleteButton = (li, el) => {
 
 const addEditButton = (li, el) => {
     const button = document.createElement('button');
+
     button.innerHTML = 'edit';
     button.addEventListener('click', () => editButtonHandler(el));
     li.appendChild(button);
@@ -113,6 +144,7 @@ const addEditButton = (li, el) => {
 const addElementToList = (list, el) => {
     const li = document.createElement('li');
     const text = `name: ${el.name} country: ${el.country}  age: ${el.age}`;
+
     li.appendChild(document.createTextNode(text));
     addEditButton(li, el)
     addDeleteButton(li, el);
@@ -122,6 +154,7 @@ const addElementToList = (list, el) => {
 const showElementsByFilter = () => {
     const url = `http://127.0.0.1:3000/load?name=${сurrentDisplayFilter.name}&country=${сurrentDisplayFilter.country}&age=${сurrentDisplayFilter.age}`;
     const list = document.querySelector('.viewList');
+
     list.innerHTML = "";
     api.getData(url).then(data => {
         if (data.message) {
@@ -139,6 +172,7 @@ const loadButtonHandler = () => {
     сurrentDisplayFilter.name = document.querySelector('.filterName').value ? document.querySelector('.filterName').value.trim() : "";
     сurrentDisplayFilter.country = document.querySelector('.filterCountry').value ? document.querySelector('.filterCountry').value.trim() : "";
     сurrentDisplayFilter.age = document.querySelector('.filterAge').value ? document.querySelector('.filterAge').value.trim() : "";
+
     showElementsByFilter();
 };
 
