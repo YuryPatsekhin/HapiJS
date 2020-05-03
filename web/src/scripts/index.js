@@ -51,12 +51,7 @@ const closeEditSection = () => {
 };
 
 const closeEditSectionIfClickOutside = () => {
-    const editSection = document.querySelector('.editSection');
-
-    editSection.addEventListener('mouseup', (e) => {
-        e.stopPropagation();
-    });
-    document.addEventListener('mouseup', closeEditSection)
+    document.addEventListener('mouseup', closeEditSection);
 };
 
 
@@ -116,7 +111,7 @@ const sumbitButtonHandler = () => {
 
     api.submitForm(JSON.stringify(obj)).then(answer => {
         if (answer.status !== CREATED_STATUS_CODE) {
-            answer.json().then(data => {
+            answer.json().then(data => {    
                 document.querySelector('.message').innerHTML = `${data.message}`;
             });
         } else {
@@ -178,3 +173,6 @@ const loadButtonHandler = () => {
 
 document.querySelector('.sumbit').addEventListener('click', sumbitButtonHandler);
 document.querySelector('.load').addEventListener('click', loadButtonHandler);
+document.querySelector('.editSection').addEventListener('mouseup', (e) => {
+    e.stopPropagation();
+});
